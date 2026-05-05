@@ -1,0 +1,28 @@
+{
+  "name": "clase-3-auth-strategies",
+  "version": "1.0.0",
+  "description": "Semana 4 - Estrategia de autenticación por terceros + JWT. Proyecto declarativo con Express y JSON Web Tokens.",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js"
+  },
+  "keywords": [
+    "express",
+    "jwt",
+    "auth",
+    "coderhouse",
+    "backend"
+  ],
+  "author": "Coder Backend",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^7.2.0"
+  }
+}

@@ -1,0 +1,358 @@
+{
+  "info": {
+    "name": "Clase 2 - Sesiones",
+    "description": "Coleccion para probar autenticacion con sesiones en Express. Ejecutar los requests en orden para validar el flujo completo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Register - User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201 - Usuario creado', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Respuesta contiene usuario con rol user', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.user.username).to.eql('juan');",
+              "  pm.expect(json.user.role).to.eql('user');",
+              "});",
+              "",
+              "pm.test('Respuesta NO contiene password', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.user).to.not.have.property('password');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"juan\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "2. Register - Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201 - Admin creado', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Respuesta contiene usuario con rol admin', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.user.role).to.eql('admin');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "3. Products SIN sesion (debe dar 401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 401 - No autorizado sin sesion', function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test('Mensaje de error correcto', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.error).to.include('No autorizado');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "4. Login - User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200 - Login exitoso', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Respuesta contiene datos del usuario', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.user.username).to.eql('juan');",
+              "  pm.expect(json.user.role).to.eql('user');",
+              "});",
+              "",
+              "pm.test('Se recibio cookie de sesion', function () {",
+              "  pm.expect(pm.cookies.has('connect.sid')).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"juan\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "5. Products CON sesion (debe dar 200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200 - Acceso autorizado', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Mensaje personalizado con nombre del usuario', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.message).to.include('juan');",
+              "});",
+              "",
+              "pm.test('Respuesta contiene lista de productos', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.productos).to.be.an('array');",
+              "  pm.expect(json.productos.length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "6. Admin con rol user (debe dar 403)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 403 - Acceso denegado por rol', function () {",
+              "  pm.response.to.have.status(403);",
+              "});",
+              "",
+              "pm.test('Mensaje indica que se requiere rol admin', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.error).to.include('admin');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin"]
+        }
+      }
+    },
+    {
+      "name": "7. Logout",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200 - Sesion cerrada', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Mensaje de cierre correcto', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.message).to.include('cerrada');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "logout"]
+        }
+      }
+    },
+    {
+      "name": "8. Products DESPUES de logout (debe dar 401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 401 - Sesion ya no existe', function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test('No se puede acceder despues de logout', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.error).to.include('No autorizado');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "9. Login - Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200 - Login admin exitoso', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Rol es admin', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.user.role).to.eql('admin');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "10. Admin con rol admin (debe dar 200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200 - Acceso admin autorizado', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Mensaje de bienvenida al panel', function () {",
+              "  var json = pm.response.json();",
+              "  pm.expect(json.message).to.include('administracion');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin"]
+        }
+      }
+    }
+  ]
+}

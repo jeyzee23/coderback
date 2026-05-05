@@ -155,3 +155,18 @@ Para producción, conviene:
 - guardar secretos fuera del código
 - usar un session store externo como Redis
 - ajustar flags de seguridad como `secure` y `sameSite`
+# Coder Backend
+
+Repositorio unificado para las clases del curso backend.
+
+## Clases
+
+- `clase-1/`, `clase-2/`, `clase-3/`: ejemplos iniciales de sesiones incluidos en la primera entrega.
+- `clase-2-sesiones/`: sesiones, cookies y almacenamiento de sesión.
+- `clase-3-auth-strategies/`: estrategias de autenticación.
+- `clase-4-practica-integradora/`: práctica integradora con autenticación.
+- `clase-6/`: JWT, Passport, cookies, roles y custom callback.
+
+Cada carpeta mantiene su propio `package.json`, README y colecciones Postman cuando corresponde.
+
+No se versionan `.env` ni `node_modules`.

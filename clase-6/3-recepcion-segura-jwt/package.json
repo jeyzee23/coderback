@@ -1,0 +1,15 @@
+{
+  "name": "3-recepcion-segura-jwt",
+  "version": "1.0.0",
+  "description": "Recepción segura de JWT en Express - Header y Cookies",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1"
+  }
+}

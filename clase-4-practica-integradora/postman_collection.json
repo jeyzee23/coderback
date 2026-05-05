@@ -1,0 +1,192 @@
+{
+  "info": {
+    "name": "Coder Backend - Clase 4 Práctica Integradora",
+    "description": "Colección de prácticas para la Clase 4: Práctica Integradora\n\nEndpoints:\n- POST /auth/register: Registrar nuevo usuario\n- POST /auth/login: Iniciar sesión (guarda token en cookie HttpOnly)\n- GET /auth/current: Ruta protegida con JWT\n- POST /auth/logout: Cerrar sesión (limpia cookie)\n- GET /users (solo admin): Listar todos los usuarios\n- GET /users/:uid: Obtener usuario por ID\n- PUT /users/:uid: Actualizar usuario\n- DELETE /users/:uid (solo admin): Eliminar usuario\n\nNotas:\n- El token se guarda en cookie HttpOnly (no en variable Postman)\n- El middleware authorize verifica rol 'admin' para ciertas rutas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Perez\",\n  \"email\": \"juan@coder.com\",\n  \"age\": 30,\n  \"password\": \"1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// En clase 4, el token viene en el body JSON, no en cookie",
+                  "// La cookie es HttpOnly y no accesible desde Postman",
+                  "const res = pm.response.json();",
+                  "console.log('Login response:', res);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@coder.com\",\n  \"password\": \"1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Current (ruta protegida)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Esta ruta requiere JWT válido en cookie",
+                  "// El middleware authenticateJWT extrae el usuario de token",
+                  "const res = pm.response.json();",
+                  "console.log('Current user:', res);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/current", "host": ["{{baseUrl}}"], "path": ["auth", "current"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// JWT es stateless, pero logout usa clearCookie",
+                  "// maxAge de cookie es 24 * 60 * 60 * 1000 = 24 horas",
+                  "// En producción, también podríamos implementar blacklist",
+                  "const res = pm.response.json();",
+                  "console.log('Logout response:', res);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users/1234567890abcdef12345678", "host": ["{{baseUrl}}"], "path": ["users", "1234567890abcdef12345678"] }
+          }
+        },
+        {
+          "name": "Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Permite actualizar first_name, last_name, age",
+                  "// No permite cambiar email, password ni role directamente",
+                  "const res = pm.response.json();",
+                  "console.log('Update response:', res);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/users/1234567890abcdef12345678", "host": ["{{baseUrl}}"], "path": ["users", "1234567890abcdef12345678"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Juan Actualizado\",\n  \"age\": 25\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Users (solo admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Esta ruta solo la puede acceder un usuario con role 'admin'",
+                  "// El middleware authorize('admin') verifica el rol",
+                  "// Retorna array de usuarios sin password",
+                  "const res = pm.response.json();",
+                  "console.log('Users count:', res.payload?.length);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Delete User (solo admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Solo admin puede eliminar usuarios",
+                  "// El middleware authorize('admin') verifica el rol",
+                  "// Usa ObjectId de MongoDB para buscar",
+                  "const res = pm.response.json();",
+                  "console.log('Delete response:', res);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/users/1234567890abcdef12345678", "host": ["{{baseUrl}}"], "path": ["users", "1234567890abcdef12345678"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}", "host": ["{{baseUrl}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}
